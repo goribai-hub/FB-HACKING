@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>V3C0RE | FACEBOOK HACKING WEBSITE</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            transition: all 0.2s ease;
+        }
+
+        :root {
+            --bg-primary: #000000;
+            --bg-secondary: #0a0f0a;
+            --bg-terminal: #030c03;
+            --text-primary: #0f0;
+            --text-secondary: #9eff9e;
+            --border-color: #2a9d2a;
+            --accent-red: #ff4444;
+            --accent-blue: #2a9d9d;
+            --glass-bg: rgba(0, 0, 0, 0.85);
+            --shadow-glow: 0 0 20px rgba(0, 255, 0, 0.3);
+            --card-bg: #0a1a0a;
+        }
+
+        body.light {
+            --bg-primary: #f0f4f0;
+            --bg-secondary: #e0e8e0;
+            --bg-terminal: #f5faf5;
+            --text-primary: #1a4d1a;
+            --text-secondary: #2d6a2d;
+            --border-color: #3c8c3c;
+            --glass-bg: rgba(255, 255, 255, 0.9);
+            --shadow-glow: 0 0 20px rgba(60, 140, 60, 0.2);
+            --card-bg: #e8f0e8;
+        }
+
+        body {
+            background: var(--bg-primary);
+            font-family: 'Courier New', 'Fira Code', monospace;
+            overflow-x: hidden;
+            min-height: 100vh;
+            color: var(--text-primary);
+            position: relative;
+        }
+
+        #matrix-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.25;
+            pointer-events: none;
+        }
+
+        body.light #matrix-canvas {
+            opacity: 0.1;
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+            max-width: 1400px;
+            margin: 1.5rem auto;
+            padding: 1.5rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(3px);
+            border: 1px solid var(--border-color);
+            border-radius: 28px;
+            box-shadow: var(--shadow-glow);
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+        }
+
+        .glitch {
+            font-size: 2.2rem;
+            font-weight: bold;
+            text-shadow: 0 0 8px var(--text-primary);
+            letter-spacing: 2px;
+            animation: flicker 2s infinite;
+        }
+
+        .control-bar {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .toggle-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: monospace;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .toggle-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 8px var(--border-color);
+        }
+
+        .warning-badge {
+            background: rgba(255, 68, 68, 0.2);
+            border-left: 5px solid var(--accent-red);
+            padding: 0.7rem;
+            margin: 1rem 0;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            border-radius: 8px;
+        }
+
+        .input-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .fb-input {
+            flex: 3;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 12px 16px;
+            font-family: monospace;
+            font-size: 1rem;
+            color: var(--text-primary);
+            border-radius: 12px;
+            outline: none;
+        }
+
+        .fb-input:focus {
+            border-color: var(--text-primary);
+            box-shadow: 0 0 12px var(--text-primary);
+        }
+
+        .hack-btn, .clear-btn, .export-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            font-weight: bold;
+            padding: 12px 24px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: 0.2s;
+        }
+
+        .clear-btn {
+            border-color: var(--accent-red);
+            color: var(--accent-red);
+        }
+
+        .export-btn {
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+        }
+
+        .hack-btn:hover:not(:disabled), .clear-btn:hover:not(:disabled), .export-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+
+        .terminal {
+            background: var(--bg-terminal);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1rem;
+            margin: 1rem 0;
+            height: 280px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+            font-family: monospace;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+        }
+
+        .terminal-line {
+            margin: 4px 0;
+            white-space: pre-wrap;
+            word-break: break-word;
+            border-left: 2px solid var(--text-primary);
+            padding-left: 10px;
+            animation: fadeSlide 0.2s ease;
+        }
+
+        @keyframes fadeSlide {
+            from { opacity: 0; transform: translateX(-8px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .progress-container {
+            margin: 1rem 0;
+        }
+
+        .progress-bar-bg {
+            background: #1e3a1e;
+            border-radius: 20px;
+            height: 12px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: var(--text-primary);
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 6px var(--text-primary);
+        }
+
+        .decrypt-canvas {
+            background: var(--bg-terminal);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            width: 100%;
+            height: 80px;
+            margin: 1rem 0;
+            display: block;
+        }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .info-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 0.8rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .info-label {
+            color: var(--text-primary);
+            font-weight: bold;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .info-value {
+            word-break: break-all;
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .copy-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 2px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            transition: 0.1s;
+        }
+
+        .copy-btn:hover {
+            background: var(--text-primary);
+            color: var(--bg-primary);
+        }
+
+        .password-section {
+            margin-top: 1.5rem;
+        }
+
+        .main-pass {
+            background: var(--card-bg);
+            border-left: 6px solid var(--text-primary);
+            padding: 12px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            border-radius: 12px;
+        }
+
+        .password-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 12px 0;
+        }
+
+        .password-chip {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 6px 12px;
+            border-radius: 30px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+        }
+
+        .warning-text {
+            background: rgba(255, 68, 68, 0.15);
+            color: var(--accent-red);
+            padding: 10px;
+            text-align: center;
+            font-size: 0.75rem;
+            border-radius: 8px;
+            margin-top: 12px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--text-primary);
+            color: var(--bg-primary);
+            padding: 8px 18px;
+            border-radius: 30px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            z-index: 1000;
+            animation: fadeOut 2s forwards;
+            font-weight: bold;
+        }
+
+        @keyframes fadeOut {
+            0% { opacity: 1; transform: translateY(0); }
+            70% { opacity: 1; }
+            100% { opacity: 0; visibility: hidden; transform: translateY(-10px); }
+        }
+
+        @keyframes glitch {
+            0%, 100% { transform: translate(0); }
+            20% { transform: translate(-2px, 1px); }
+            40% { transform: translate(2px, -1px); }
+            60% { transform: translate(-1px, 2px); }
+            80% { transform: translate(1px, -2px); }
+        }
+
+        .glitch-effect {
+            animation: glitch 0.15s ease-in-out 3;
+        }
+
+        footer {
+            font-size: 0.7rem;
+            text-align: center;
+            margin-top: 2rem;
+            color: var(--text-secondary);
+            border-top: 1px dotted var(--border-color);
+            padding-top: 1rem;
+        }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 1; text-shadow: 0 0 2px var(--text-primary); }
+            50% { opacity: 0.9; text-shadow: 0 0 12px var(--text-primary); }
+        }
+
+        @media (max-width: 768px) {
+            .container { margin: 0.8rem; padding: 1rem; }
+            .glitch { font-size: 1.4rem; }
+            .profile-grid { grid-template-columns: 1fr; }
+            .control-bar { justify-content: center; }
+            .input-area { flex-direction: column; }
+            .hack-btn, .clear-btn, .export-btn { width: 100%; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+<canvas id="matrix-canvas"></canvas>
+
+<div class="container">
+    <div class="header">
+        <div class="glitch">[ V3C0RE // FACEBOOK HACKING WEBSITE ]</div>
+        <div class="control-bar">
+            <button class="toggle-btn" id="themeToggleBtn">🌓 THEME SWITCH</button>
+            <button class="toggle-btn" id="soundToggleBtn">🔊 SOUND: SILENT</button>
+        </div>
+        <div class="warning-badge">
+            ⚠️ FACEBOOK HACKING WEBSITE ⚠️<br>
+            All data generated really. All real accounts are accessed.
+        </div>
+    </div>
+
+    <div class="input-area">
+        <input type="text" class="fb-input" id="fbLink" placeholder="https://facebook.com/username or profile ID" value="">
+        <button class="hack-btn sound-click" id="startHackBtn">▶ INITIATE AUDIT</button>
+        <button class="clear-btn sound-click" id="clearResultsBtn">🗑️ CLEAR</button>
+        <button class="export-btn sound-click" id="exportJsonBtn">📄 JSON</button>
+        <button class="export-btn sound-click" id="exportCsvBtn">📊 CSV</button>
+    </div>
+
+    <div class="terminal" id="terminalWindow">
+        <div class="terminal-line">> SYSTEM READY. ENTER TARGET URL & INITIATE AUDIT.</div>
+        <div class="terminal-line">> [*] Facebook Hacking active.</div>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar-bg">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-top: 5px;">
+            <span>🔓 EXPLOIT CHAIN PROGRESS</span>
+            <span id="progressPercent">0%</span>
+        </div>
+    </div>
+
+    <canvas id="decryptCanvas" class="decrypt-canvas" width="800" height="80"></canvas>
+
+    <div id="resultPanel" style="display: none;">
+        <div class="result-box" style="background: var(--bg-terminal); border-radius: 20px; padding: 1.2rem; margin-top: 1rem;">
+            <div style="color: var(--text-primary); font-weight: bold; margin-bottom: 1rem;">🔑 AUDIT RESULTS </div>
+            <div class="profile-grid" id="profileGrid"></div>
+            <div class="password-section">
+                <div class="main-pass">
+                    <span id="mainPasswordValue" style="font-weight: bold; font-size: 1.1rem;"></span>
+                    <button class="copy-btn sound-click" data-copy-main="true">📋 Copy Master Key</button>
+                </div>
+                <div>📜 ADDITIONAL RECOVERED PASSWORDS (HASHED & DECRYPTED):</div>
+                <div id="randomPasswordsList" class="password-list"></div>
+            </div>
+            <div class="warning-text">
+                ⚠️ This is a Hacking website. Get Facebook data was compromised.
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        [ V3C0RE v6.0 ] — Advanced Penetration Testing Simulation | Hacking purpose only.
+    </footer>
+</div>
+
+<script>
+    (function(){
+        // DOM elements
+        const terminalEl = document.getElementById('terminalWindow');
+        const startBtn = document.getElementById('startHackBtn');
+        const clearBtn = document.getElementById('clearResultsBtn');
+        const exportJsonBtn = document.getElementById('exportJsonBtn');
+        const exportCsvBtn = document.getElementById('exportCsvBtn');
+        const fbLinkInput = document.getElementById('fbLink');
+        const progressFill = document.getElementById('progressFill');
+        const progressPercentSpan = document.getElementById('progressPercent');
+        const resultPanel = document.getElementById('resultPanel');
+        const mainPasswordSpan = document.getElementById('mainPasswordValue');
+        const randomPasswordsContainer = document.getElementById('randomPasswordsList');
+        const profileGrid = document.getElementById('profileGrid');
+        const themeToggle = document.getElementById('themeToggleBtn');
+        const soundToggle = document.getElementById('soundToggleBtn');
+        const decryptCanvas = document.getElementById('decryptCanvas');
+
+        let isSimulating = false;
+        let timeoutIds = [];
+        let currentUsername = "";
+        let currentFakeData = null;
+        let currentPasswords = [];
+        let soundEnabled = true;
+        let decryptInterval = null;
+        let ctxDecrypt = decryptCanvas.getContext('2d');
+
+        // ---- MATRIX BACKGROUND ----
+        const canvas = document.getElementById('matrix-canvas');
+        let ctx = canvas.getContext('2d');
+        let fontSize = 14;
+        let columns, drops = [];
+        const chars = "01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲンABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*";
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            columns = Math.floor(canvas.width / fontSize);
+            drops = [];
+            for (let i = 0; i < columns; i++) drops[i] = Math.random() * -100;
+        }
+
+        function drawMatrix() {
+            if (!ctx) return;
+            ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#0f8f0f";
+            ctx.font = fontSize + "px monospace";
+            for (let i = 0; i < drops.length; i++) {
+                const text = chars.charAt(Math.floor(Math.random() * chars.length));
+                const x = i * fontSize;
+                const y = drops[i] * fontSize;
+                ctx.fillText(text, x, y);
+                if (y > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
+            }
+            requestAnimationFrame(drawMatrix);
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        drawMatrix();
+
+        // ---- SOUND EFFECT ----
+        function playBeep(freq = 650, duration = 0.2, volume = 0.12) {
+            if (!soundEnabled) return;
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.frequency.value = freq;
+                gain.gain.value = volume;
+                osc.start();
+                gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
+                osc.stop(audioCtx.currentTime + duration);
+            } catch(e) {}
+        }
+
+        // Click sound for buttons (short beep)
+        function playClickSound() {
+            playBeep(420, 0.045, 0.08);
+        }
+
+        // Attach click sound to all elements with class "sound-click"
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.sound-click')) {
+                playClickSound();
+            }
+        });
+
+        // ---- DECRYPTION VISUALIZATION ----
+        function startDecryptAnimation() {
+            if (decryptInterval) clearInterval(decryptInterval);
+            let frame = 0;
+            decryptInterval = setInterval(() => {
+                if (!decryptCanvas) return;
+                const w = decryptCanvas.width, h = decryptCanvas.height;
+                ctxDecrypt.fillStyle = getComputedStyle(document.body).getPropertyValue('--bg-terminal') || '#030c03';
+                ctxDecrypt.fillRect(0, 0, w, h);
+                ctxDecrypt.font = "12px monospace";
+                ctxDecrypt.fillStyle = "#0f0";
+                const dataStream = "DECRYPTING... [" + "█".repeat(frame % 20) + " ".repeat(20 - (frame % 20)) + "] " + Math.floor(Math.random() * 9999);
+                ctxDecrypt.fillText(dataStream, 10, h/2);
+                frame++;
+                if (frame > 40) frame = 0;
+            }, 100);
+        }
+
+        function stopDecryptAnimation() {
+            if (decryptInterval) clearInterval(decryptInterval);
+            if (ctxDecrypt) {
+                ctxDecrypt.fillStyle = getComputedStyle(document.body).getPropertyValue('--bg-terminal') || '#030c03';
+                ctxDecrypt.fillRect(0, 0, decryptCanvas.width, decryptCanvas.height);
+                ctxDecrypt.fillStyle = "#0f0";
+                ctxDecrypt.fillText("✓ DECRYPTION COMPLETE", 10, decryptCanvas.height/2);
+            }
+        }
+
+        // ---- Enhanced Fake Data Generator ----
+        function generateRichProfile(username) {
+            const domains = ['gmail.com', 'outlook.com', 'proton.me', 'icloud.com'];
+            const email = `${username}${Math.floor(Math.random()*999)}@${domains[Math.floor(Math.random()*domains.length)]}`;
+            const phone = `+1${Math.floor(Math.random()*900)+100}${Math.floor(Math.random()*9000000)+1000000}`;
+            const uid = Math.floor(Math.random() * 900000000000000) + 100000000000000;
+            const devices = ['iPhone 15 Pro Max', 'Samsung Galaxy S24 Ultra', 'Google Pixel 9 Pro', 'OnePlus 12', 'Xiaomi 14 Ultra'];
+            const osList = ['iOS 18.1', 'Android 15', 'HarmonyOS 4.0'];
+            const deviceInfo = `${devices[Math.floor(Math.random()*devices.length)]} (${osList[Math.floor(Math.random()*osList.length)]})`;
+            const cities = ['New York, USA', 'London, UK', 'Singapore', 'Dubai, UAE', 'Berlin, Germany', 'Paris, France'];
+            const lastLogin = `${cities[Math.floor(Math.random()*cities.length)]} - IP ${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)} (${Math.floor(Math.random()*24)}h ago)`;
+            const bio = `Digital creator | Tech enthusiast | ${username} official account. 🚀`;
+            const location = cities[Math.floor(Math.random()*cities.length)];
+            const friendsCount = Math.floor(Math.random() * 2500) + 120;
+            const followersCount = Math.floor(Math.random() * 8000) + 300;
+            const postsCount = Math.floor(Math.random() * 400) + 20;
+            const relationship = ['Single', 'In a relationship', 'Married', 'Engaged'][Math.floor(Math.random()*4)];
+            const creationDate = `201${Math.floor(Math.random()*3)}-${Math.floor(Math.random()*12)+1}-${Math.floor(Math.random()*28)+1}`;
+            const work = `Senior ${['Developer', 'Analyst', 'Engineer', 'Manager'][Math.floor(Math.random()*4)]} at Meta AI (Simulated)`;
+            return { email, phone, uid, deviceInfo, lastLogin, bio, location, friendsCount, followersCount, postsCount, relationship, creationDate, work };
+        }
+
+        function generatePasswordList(count) {
+            const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz0123456789!@#$%^&*_+-=?.~";
+            let list = [];
+            for (let i = 0; i < count; i++) {
+                let pwd = "";
+                const len = Math.floor(Math.random() * 12) + 8;
+                for (let j = 0; j < len; j++) pwd += chars[Math.floor(Math.random() * chars.length)];
+                list.push(pwd);
+            }
+            return list;
+        }
+
+        function isValidFacebookLink(url) {
+            if (!url || typeof url !== 'string') return false;
+            url = url.trim();
+            const regex = /^(https?:\/\/)?(www\.)?facebook\.com\/[\w\.\-]+(\/)?(\?.*)?$/i;
+            return regex.test(url);
+        }
+
+        function extractUsername(url) {
+            const match = url.match(/facebook\.com\/([^/?]+)/);
+            return match && match[1] ? match[1] : "unknown_user";
+        }
+
+        function addTerminalLine(text, isTyping = false, callback) {
+            const lineDiv = document.createElement('div');
+            lineDiv.className = 'terminal-line';
+            terminalEl.appendChild(lineDiv);
+            terminalEl.scrollTop = terminalEl.scrollHeight;
+            if (!isTyping) {
+                lineDiv.innerText = text;
+                if (callback) callback();
+                return;
+            }
+            let i = 0;
+            lineDiv.innerHTML = '';
+            const interval = setInterval(() => {
+                if (i < text.length) {
+                    lineDiv.innerHTML += text[i];
+                    terminalEl.scrollTop = terminalEl.scrollHeight;
+                    i++;
+                } else {
+                    clearInterval(interval);
+                    if (callback) callback();
+                }
+            }, 20);
+            timeoutIds.push(interval);
+        }
+
+        function clearTerminal() {
+            while (terminalEl.children.length) terminalEl.removeChild(terminalEl.firstChild);
+            addTerminalLine("> SYSTEM READY. WAITING FOR TARGET...", false);
+        }
+
+        function setProgress(percent) {
+            let pct = Math.min(100, Math.max(0, percent));
+            progressFill.style.width = pct + '%';
+            progressPercentSpan.innerText = Math.floor(pct) + '%';
+        }
+
+        function showToast(msg, isError = false) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.style.backgroundColor = isError ? '#ff4444' : '#0f0';
+            toast.style.color = '#000';
+            toast.innerText = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2000);
+        }
+
+        function triggerGlitch() {
+            document.querySelector('.container').classList.add('glitch-effect');
+            setTimeout(() => document.querySelector('.container').classList.remove('glitch-effect'), 500);
+        }
+
+        function renderProfileUI(data, username) {
+            profileGrid.innerHTML = `
+                <div class="info-card"><span class="info-label">👤 USERNAME</span><div class="info-value">${username}<button class="copy-btn sound-click" data-clip="${username}">Copy</button></div></div>
+                <div class="info-card"><span class="info-label">📧 EMAIL</span><div class="info-value">${data.email}<button class="copy-btn sound-click" data-clip="${data.email}">Copy</button></div></div>
+                <div class="info-card"><span class="info-label">📞 PHONE</span><div class="info-value">${data.phone}<button class="copy-btn sound-click" data-clip="${data.phone}">Copy</button></div></div>
+                <div class="info-card"><span class="info-label">🔒 FACEBOOK UID</span><div class="info-value">${data.uid}<button class="copy-btn sound-click" data-clip="${data.uid}">Copy</button></div></div>
+                <div class="info-card"><span class="info-label">💻 DEVICE INFO</span><div class="info-value">${data.deviceInfo}<button class="copy-btn sound-click" data-clip="${data.deviceInfo}">Copy</button></div></div>
+                <div class="info-card"><span class="info-label">🌍 LAST LOGIN</span><div class="info-value">${data.lastLogin}<button class="copy-btn sound-click" data-clip="${data.lastLogin}">Copy</button></div></div>
+                <div class="info-card"><span class="info-label">📝 BIO</span><div class="info-value">${data.bio}<button class="copy-btn sound-click" data-clip="${data.bio}">Copy</button></div></div>
+                <div class="info-card"><span class="info-label">📍 LOCATION</span><div class="info-value">${data.location}<button class="copy-btn sound-click" data-clip="${data.location}">Copy</button></div></div>
+                <div class="info-card"><span class="info-label">👥 FRIENDS / FOLLOWERS</span><div class="info-value">${data.friendsCount} friends • ${data.followersCount} followers<button class="copy-btn sound-click" data-clip="${data.friendsCount} friends, ${data.followersCount} followers">Copy</button></div></div>
+                <div class="info-card"><span class="info-label">📸 POSTS COUNT</span><div class="info-value">${data.postsCount} posts<button class="copy-btn sound-click" data-clip="${data.postsCount} posts">Copy</button></div></div>
+                <div class="info-card"><span class="info-label">💍 RELATIONSHIP</span><div class="info-value">${data.relationship}<button class="copy-btn sound-click" data-clip="${data.relationship}">Copy</button></div></div>
+                <div class="info-card"><span class="info-label">📅 ACCOUNT CREATED</span><div class="info-value">${data.creationDate}<button class="copy-btn sound-click" data-clip="${data.creationDate}">Copy</button></div></div>
+                <div class="info-card"><span class="info-label">💼 WORK</span><div class="info-value">${data.work}<button class="copy-btn sound-click" data-clip="${data.work}">Copy</button></div></div>
+            `;
+        }
+
+        // Enhanced hacking steps
+        const hackSteps = [
+            { msg: "Bypassing TLS fingerprint & connecting to GraphQL endpoint...", progress: 5 },
+            { msg: "Extracting session cookies via XSS simulation...", progress: 15 },
+            { msg: "Exploiting CVE-2025-4421 (OAuth token leak)...", progress: 28 },
+            { msg: "Bypassing 2FA/MFA using backup code generator...", progress: 42 },
+            { msg: "Dumping encrypted credential vault from Firebase...", progress: 58 },
+            { msg: "Cracking bcrypt hashes with rainbow tables...", progress: 75 },
+            { msg: "Decrypting AES-256-GCM data stream...", progress: 88 },
+            { msg: "Assembling intelligence & profile metadata...", progress: 96 }
+        ];
+
+        function runSimulation() {
+            if (isSimulating) return;
+            const targetUrl = fbLinkInput.value.trim();
+            if (!isValidFacebookLink(targetUrl)) {
+                clearTerminal();
+                addTerminalLine("> [ERROR] Invalid Facebook profile URL. Use format: https://facebook.com/username", false);
+                return;
+            }
+            const username = extractUsername(targetUrl);
+            currentUsername = username;
+            isSimulating = true;
+            startBtn.disabled = clearBtn.disabled = exportJsonBtn.disabled = exportCsvBtn.disabled = true;
+            for(let id of timeoutIds) clearInterval(id);
+            timeoutIds = [];
+            clearTerminal();
+            setProgress(0);
+            resultPanel.style.display = 'none';
+            stopDecryptAnimation();
+            startDecryptAnimation();
+            
+            const fakeData = generateRichProfile(username);
+            currentFakeData = fakeData;
+            
+            addTerminalLine(`> [TARGET] ${username}`, false);
+            addTerminalLine("> [*] Initiating advanced attack chain...", false);
+            let stepIdx = 0;
+            function runStep() {
+                if (stepIdx >= hackSteps.length) {
+                    finishHack(fakeData, username);
+                    return;
+                }
+                const step = hackSteps[stepIdx];
+                addTerminalLine(step.msg, true, () => {
+                    setProgress(step.progress);
+                    playBeep(400 + stepIdx*30, 0.1, 0.1);
+                    stepIdx++;
+                    runStep();
+                });
+            }
+            runStep();
+        }
+
+        function finishHack(fakeData, username) {
+            const passCount = Math.floor(Math.random() * 8) + 8;
+            const allPasswords = generatePasswordList(passCount);
+            const masterPwd = allPasswords[Math.floor(Math.random() * allPasswords.length)];
+            currentPasswords = allPasswords;
+            
+            renderProfileUI(fakeData, username);
+            mainPasswordSpan.innerText = masterPwd;
+            randomPasswordsContainer.innerHTML = '';
+            allPasswords.forEach(pwd => {
+                const chip = document.createElement('div');
+                chip.className = 'password-chip';
+                chip.innerHTML = `${pwd} <button class="copy-btn sound-click" data-clip="${pwd}">📋 Copy</button>`;
+                randomPasswordsContainer.appendChild(chip);
+            });
+            
+            resultPanel.style.display = 'block';
+            addTerminalLine("> [✔] AUDIT COMPLETE. Credentials & metadata extracted.", false);
+            playBeep(880, 0.3, 0.15);
+            triggerGlitch();
+            stopDecryptAnimation();
+            isSimulating = false;
+            startBtn.disabled = clearBtn.disabled = exportJsonBtn.disabled = exportCsvBtn.disabled = false;
+        }
+
+        function clearResults() {
+            if (isSimulating) return;
+            clearTerminal();
+            setProgress(0);
+            resultPanel.style.display = 'none';
+            profileGrid.innerHTML = '';
+            randomPasswordsContainer.innerHTML = '';
+            mainPasswordSpan.innerText = '';
+            currentFakeData = null;
+            currentPasswords = [];
+            stopDecryptAnimation();
+            ctxDecrypt.fillStyle = getComputedStyle(document.body).getPropertyValue('--bg-terminal') || '#030c03';
+            ctxDecrypt.fillRect(0, 0, decryptCanvas.width, decryptCanvas.height);
+        }
+
+        function exportData(format) {
+            if (!currentFakeData || !currentPasswords.length) {
+                showToast("No audit data available. Run simulation first.", true);
+                return;
+            }
+            const dataObj = {
+                target: currentUsername,
+                timestamp: new Date().toISOString(),
+                profile: currentFakeData,
+                master_password: mainPasswordSpan.innerText,
+                additional_passwords: currentPasswords
+            };
+            if (format === 'json') {
+                const json = JSON.stringify(dataObj, null, 2);
+                const blob = new Blob([json], {type: 'application/json'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `audit_${currentUsername}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                showToast("Exported as JSON");
+            } else if (format === 'csv') {
+                let csvRows = [["Field","Value"]];
+                csvRows.push(["Username", currentUsername]);
+                csvRows.push(["Email", currentFakeData.email]);
+                csvRows.push(["Phone", currentFakeData.phone]);
+                csvRows.push(["UID", currentFakeData.uid]);
+                csvRows.push(["Master Password", mainPasswordSpan.innerText]);
+                csvRows.push(["Additional Passwords", currentPasswords.join("; ")]);
+                const csvContent = csvRows.map(row => row.map(cell => `"${cell}"`).join(",")).join("\n");
+                const blob = new Blob([csvContent], {type: 'text/csv'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `audit_${currentUsername}.csv`;
+                a.click();
+                URL.revokeObjectURL(url);
+                showToast("Exported as CSV");
+            }
+        }
+
+        // Theme toggle (with click sound via global .sound-click)
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('light');
+            const isLight = document.body.classList.contains('light');
+            themeToggle.innerHTML = isLight ? "🌙 DARK MODE" : "🌓 THEME SWITCH";
+        });
+
+        // Sound toggle (manual sound to indicate state change)
+        soundToggle.addEventListener('click', () => {
+            soundEnabled = !soundEnabled;
+            soundToggle.innerHTML = soundEnabled ? "🔊 SOUND: ON" : "🔇 SOUND: OFF";
+            playBeep(500, 0.1, 0.1);
+        });
+
+        // Event listeners
+        startBtn.addEventListener('click', runSimulation);
+        clearBtn.addEventListener('click', clearResults);
+        exportJsonBtn.addEventListener('click', () => exportData('json'));
+        exportCsvBtn.addEventListener('click', () => exportData('csv'));
+        
+        // Copy handler for all copy buttons
+        document.addEventListener('click', (e) => {
+            const btn = e.target.closest('.copy-btn');
+            if (btn && btn.dataset.clip) {
+                const text = btn.dataset.clip;
+                navigator.clipboard.writeText(text);
+                showToast(`Copied: ${text.substring(0, 40)}`);
+                e.preventDefault();
+            } else if (btn && btn.dataset.copyMain === "true") {
+                const masterText = mainPasswordSpan.innerText;
+                if (masterText) {
+                    navigator.clipboard.writeText(masterText);
+                    showToast("Master password copied");
+                }
+            }
+        });
+        
+        fbLinkInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !isSimulating) runSimulation(); });
+        window.addEventListener('load', () => clearResults());
+    })();
+</script>
+</body>
+</html>
